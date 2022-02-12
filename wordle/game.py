@@ -61,7 +61,6 @@ class WordleGameStatus:
             s += f'{guess} {mark}\n'
         return s
 
-
     def add(self, guess, mark):
         self.tries.append((guess, mark))
         if mark == 'OOOOO':
@@ -109,9 +108,12 @@ class WordleGame:
             mark = WordleGame.mark(answer, guess)
             status.add(guess, mark)
             if status.win:
-                self.player.win(status)
                 break
-        self.player.lose(status, answer)
+
+        if status.win:
+            self.player.win(status)
+        else:
+            self.player.lose(status, answer)
 
 
 
