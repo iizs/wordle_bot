@@ -63,7 +63,7 @@ class WordleGameStatus:
 
     def add(self, guess, mark):
         self.tries.append((guess, mark))
-        if mark == 'OOOOO':
+        if mark == '🟩🟩🟩🟩🟩':
             self.win = True
 
 
@@ -75,10 +75,10 @@ class WordleGame:
 
     @staticmethod
     def mark(answer, guess):
-        m = '_____'
+        m = '⬛⬛⬛⬛⬛'
         for i in range(len(answer)):
             if answer[i] == guess[i]:
-                m = m[0:i] + 'O' + m[i+1:]
+                m = m[0:i] + '🟩' + m[i+1:]
                 answer = answer[0:i] + ' ' + answer[i+1:]
                 guess = guess[0:i] + ' ' + guess[i+1:]
         for i in range(len(guess)):
@@ -86,7 +86,7 @@ class WordleGame:
                 continue
             for j in range(len(answer)):
                 if answer[j] == guess[i]:
-                    m = m[0:i] + '*' + m[i + 1:]
+                    m = m[0:i] + '🟨' + m[i + 1:]
                     answer = answer[0:j] + ' ' + answer[j+1:]
         return m
 
