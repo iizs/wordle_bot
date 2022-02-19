@@ -27,7 +27,7 @@ class Player:
         pass
 
     @abstractmethod
-    def lose(self, status):
+    def lose(self, status, answer):
         pass
 
 
