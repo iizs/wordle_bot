@@ -4,8 +4,8 @@ import random
 
 
 class WordleDictionary:
-    DEFAULT_DATA_DIR = os.path.join(os.getcwd(), 'data', 'dictionary', 'scrabble.merriam')
-    DEFAULT_SOURCE = 'scrabble.merriam'
+    DEFAULT_DATA_DIR = os.path.join(os.getcwd(), 'data', 'dictionary', 'wordle')
+    DEFAULT_SOURCE = 'wordle.answer'
     DATA_FILE_PATTERN = '{}.{}{:02d}.json'
     ALPHABET = 'abcdefghijklmnopqrlstuvwxyz'
 
