@@ -64,3 +64,34 @@ class HumanPlayer(Player):
     def __init__(self):
         super().__init__()
         self.__name__ = "HumanPlayer"
+
+
+class BotPlayer(Player):
+    def win(self, status):
+        super().win(status)
+        logger.info(f"\n{status}")
+        logger.info(f"Won in {status.num_tries()} tries!")
+
+    def lose(self, status, answer):
+        super().lose(status, answer)
+        logger.info(f"\n{status}")
+        logger.info(f"Lost! The answer was: {answer}")
+
+    def game_over(self):
+        logger.info("Game over!")
+        logger.info(f"{self.name} won {self.wins} games, lost {self.losses} games.")
+        logger.info(f"{self.name} had {self.wins/self.games*100:.2f} win %.")
+        if self.wins > 0:
+            avg_guesses = sum(self.num_guesses_on_success) / len(self.num_guesses_on_success)
+            logger.info(f"{self.name} had {avg_guesses:.2f} guesses on average.")
+        else:
+            logger.info(f"{self.name} had no successful guesses.")
+
+    def restart(self):
+        self.games += 1
+        self.num_guesses = 0
+        logger.info(f"Starting game #{self.games}")
+
+    def __init__(self):
+        super().__init__()
+        self.__name__ = "BotPlayer"

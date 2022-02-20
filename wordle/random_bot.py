@@ -1,4 +1,4 @@
-from .player import Player
+from .player import Player, BotPlayer
 from .dictionary import WordleDictionary, ExternalDictionary
 import os
 import logging
@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class RandomBotPlayer(Player):
+class RandomBotPlayer(BotPlayer):
     def make_guess(self, status):
         super().make_guess(status)
         logger.info(f"\n{status}")
@@ -25,29 +25,8 @@ class RandomBotPlayer(Player):
         logger.info(f"Trying: {self.previous_guess}")
         return self.previous_guess
 
-    def win(self, status):
-        super().win(status)
-        logger.info(f"\n{status}")
-        logger.info(f"Won in {status.num_tries()} tries!")
-
-    def lose(self, status, answer):
-        super().lose(status, answer)
-        logger.info(f"\n{status}")
-        logger.info(f"Lost! The answer was: {answer}")
-
-    def game_over(self):
-        logger.info("Game over!")
-        logger.info(f"{self.name} won {self.wins} games, lost {self.losses} games.")
-        logger.info(f"{self.name} had {self.wins/self.games*100:.2f} win %.")
-        if self.wins > 0:
-            avg_guesses = sum(self.num_guesses_on_success) / len(self.num_guesses_on_success)
-            logger.info(f"{self.name} had {avg_guesses:.2f} guesses on average.")
-        else:
-            logger.info(f"{self.name} had no successful guesses.")
-
     def restart(self):
-        self.games += 1
-        self.num_guesses = 0
+        super().restart()
         self.dictionary = self.init_dictionary
         self.previous_guess = None
         logger.info(f"Starting game #{self.games}")
