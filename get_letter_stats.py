@@ -24,3 +24,7 @@ for letter in "abcdefghijklmnopqrstuvwxyz":
     for idx in range(1, 6):
         logger.info(f'({letter}, {idx}): {len(wd.get_words_by_letter_and_position(letter, idx))}')
 
+logger.info(f'{wd.get_words_by_letters(["s", "i", "l"])}')
+for word in wd.get_words_by_letters(["s", "i", "l"]):
+    if word[0]== 's' and word[2] == 'i' and word[3] == 'l' and word[4] == 'l':
+        logger.info(f'{word}')
