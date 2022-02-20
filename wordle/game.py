@@ -1,8 +1,6 @@
 import logging
 from .dictionary import WordleDictionary
 
-FORMAT = '[%(asctime)s] %(levelname)s {%(filename)s} - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +20,9 @@ class WordleGameStatus:
         self.tries.append((guess, mark))
         if mark == '🟩🟩🟩🟩🟩':
             self.win = True
+
+    def num_tries(self):
+        return len(self.tries)
 
 
 class WordleGame:
