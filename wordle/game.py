@@ -1,5 +1,5 @@
 import logging
-from .dictionary import WordleDictionary
+from .dictionary import ExternalDictionary
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,8 @@ class WordleGame:
     def __init__(self, player):
         self.__name__ = "WorldeGame"
         self.player = player
-        self.answer_dictionary = WordleDictionary(source='wordle.answer')
-        self.valid_dictionary = WordleDictionary(source='wordle.valid')
+        self.answer_dictionary = ExternalDictionary(source='wordle.answer')
+        self.valid_dictionary = ExternalDictionary(source='wordle.valid')
 
     @staticmethod
     def mark(answer, guess):
@@ -49,30 +49,33 @@ class WordleGame:
                     answer = answer[0:j] + ' ' + answer[j+1:]
         return m
 
-    def start(self):
+    def start(self, num_games=1):
         # Generate a random word
         # give player a chance to guess
         # if player guesses correctly, game ends
         # if player guesses incorrectly, game continues and give the player hints
         # repeat 6 times
         # if player guesses incorrectly 6 times, game ends
-        answer = self.answer_dictionary.random()
-        status = WordleGameStatus()
-        for i in range(6):
-            valid_guess = False
-            while not valid_guess:
-                guess = self.player.make_guess(status)
-                if self.valid_dictionary.exists(guess):
-                    valid_guess = True
-            mark = WordleGame.mark(answer, guess)
-            status.add(guess, mark)
-            if status.win:
-                break
+        for n in range(num_games):
+            self.player.restart()
+            answer = self.answer_dictionary.random()
+            status = WordleGameStatus()
+            for i in range(6):
+                valid_guess = False
+                while not valid_guess:
+                    guess = self.player.make_guess(status)
+                    if self.valid_dictionary.exists(guess):
+                        valid_guess = True
+                mark = WordleGame.mark(answer, guess)
+                status.add(guess, mark)
+                if status.win:
+                    break
 
-        if status.win:
-            self.player.win(status)
-        else:
-            self.player.lose(status, answer)
+            if status.win:
+                self.player.win(status)
+            else:
+                self.player.lose(status, answer)
+        self.player.game_over()
 
 
 
