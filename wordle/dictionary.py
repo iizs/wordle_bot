@@ -21,6 +21,10 @@ class WordleDictionary:
     def reduce(self, word, mask):
         return MaskedDictionary(self, word, mask)
 
+    def remove_word(self, word):
+        if word in self.dictionary:
+            del self.dictionary[word]
+
 
 class ExternalDictionary(WordleDictionary):
     DEFAULT_DATA_DIR = os.path.join(os.getcwd(), 'data', 'dictionary', 'wordle')

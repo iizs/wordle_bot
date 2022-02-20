@@ -10,8 +10,13 @@ class RandomBotPlayer(Player):
     def make_guess(self, status):
         super().make_guess(status)
         logger.info(f"\n{status}")
+
         if self.previous_guess is not None:
-            self.dictionary = self.dictionary.reduce(self.previous_guess, status.tries[-1][1])
+            if status.last_guess_was_valid:
+                self.dictionary = self.dictionary.reduce(self.previous_guess, status.tries[-1][1])
+            else:
+                self.dictionary.remove_word(self.previous_guess)
+
         logger.info(f"{len(self.dictionary.dictionary)} candidates left")
         try:
             self.previous_guess = self.dictionary.random()
@@ -33,6 +38,7 @@ class RandomBotPlayer(Player):
     def game_over(self):
         logger.info("Game over!")
         logger.info(f"{self.name} won {self.wins} games, lost {self.losses} games.")
+        logger.info(f"{self.name} had {self.wins/self.games*100:.2f} win %.")
         if self.wins > 0:
             avg_guesses = sum(self.num_guesses_on_success) / len(self.num_guesses_on_success)
             logger.info(f"{self.name} had {avg_guesses:.2f} guesses on average.")

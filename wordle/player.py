@@ -32,6 +32,7 @@ class Player:
     def game_over(self):
         print("Game over!")
         print(f"{self.name} won {self.wins} games, lost {self.losses} games.")
+        print(f"{self.name} had {self.wins / self.games * 100:.2f} win %.")
         if self.wins > 0:
             avg_guesses = sum(self.num_guesses_on_success) / len(self.num_guesses_on_success)
             print(f"{self.name} had {avg_guesses:.2f} guesses on average.")

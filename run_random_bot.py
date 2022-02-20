@@ -8,4 +8,4 @@ logging.basicConfig(format=FORMAT, level=logging.INFO)
 player = RandomBotPlayer()
 
 game = WordleGame(player)
-game.start(num_games=100)
+game.start(num_games=10000)

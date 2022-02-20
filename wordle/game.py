@@ -8,16 +8,26 @@ class WordleGameStatus:
     def __init__(self):
         self.__name__ = "WordleGameStatus"
         self.win = False
+        self.last_guess = None
+        self.last_guess_was_valid = True
         self.tries = []
 
     def __str__(self):
         s = ''
+        if not self.last_guess_was_valid:
+            s += f'Invalid guess: {self.last_guess}\n'
         for guess, mark in self.tries:
             s += f'{guess} {mark}\n'
         return s
 
+    def set_as_invalid_guess(self, guess):
+        self.last_guess = guess
+        self.last_guess_was_valid = False
+
     def add(self, guess, mark):
         self.tries.append((guess, mark))
+        self.last_guess = guess
+        self.last_guess_was_valid = True
         if mark == '🟩🟩🟩🟩🟩':
             self.win = True
 
@@ -66,6 +76,7 @@ class WordleGame:
                     guess = self.player.make_guess(status)
                     if self.valid_dictionary.exists(guess):
                         valid_guess = True
+                    status.set_as_invalid_guess(guess)
                 mark = WordleGame.mark(answer, guess)
                 status.add(guess, mark)
                 if status.win:
