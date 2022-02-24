@@ -1,5 +1,6 @@
 import logging
 from .dictionary import ExternalDictionary
+from .util import mark
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +17,16 @@ class WordleGameStatus:
         s = ''
         if not self.last_guess_was_valid:
             s += f'Invalid guess: {self.last_guess}\n'
-        for guess, mark in self.tries:
-            s += f'{guess} {mark}\n'
+        for guess, mark_result in self.tries:
+            s += f'{guess} {mark_result}\n'
         return s
 
     def set_as_invalid_guess(self, guess):
         self.last_guess = guess
         self.last_guess_was_valid = False
 
-    def add(self, guess, mark):
-        self.tries.append((guess, mark))
+    def add(self, guess, mark_result):
+        self.tries.append((guess, mark_result))
         self.last_guess = guess
         self.last_guess_was_valid = True
         if mark == '🟩🟩🟩🟩🟩':
@@ -41,23 +42,6 @@ class WordleGame:
         self.player = player
         self.answer_dictionary = ExternalDictionary(source='wordle.answer')
         self.valid_dictionary = ExternalDictionary(source='wordle.valid')
-
-    @staticmethod
-    def mark(answer, guess):
-        m = '⬛⬛⬛⬛⬛'
-        for i in range(len(answer)):
-            if answer[i] == guess[i]:
-                m = m[0:i] + '🟩' + m[i+1:]
-                answer = answer[0:i] + ' ' + answer[i+1:]
-                guess = guess[0:i] + ' ' + guess[i+1:]
-        for i in range(len(guess)):
-            if guess[i] == ' ':
-                continue
-            for j in range(len(answer)):
-                if answer[j] == guess[i]:
-                    m = m[0:i] + '🟨' + m[i + 1:]
-                    answer = answer[0:j] + ' ' + answer[j+1:]
-        return m
 
     def start(self, num_games=1):
         # Generate a random word
@@ -77,8 +61,8 @@ class WordleGame:
                     if self.valid_dictionary.exists(guess):
                         valid_guess = True
                     status.set_as_invalid_guess(guess)
-                mark = WordleGame.mark(answer, guess)
-                status.add(guess, mark)
+                m = mark(answer, guess)
+                status.add(guess, m)
                 if status.win:
                     break
 
@@ -87,6 +71,3 @@ class WordleGame:
             else:
                 self.player.lose(status, answer)
         self.player.game_over()
-
-
-

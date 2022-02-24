@@ -1,7 +1,9 @@
 import os
 import json
 import random
+import math
 import logging
+from .util import match, mark
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +20,8 @@ class WordleDictionary:
     def random(self):
         return random.choice(list(self.dictionary.keys()))
 
-    def reduce(self, word, mask):
-        return MaskedDictionary(self, word, mask)
+    def reduce(self, mask_word, mask):
+        return MaskedDictionary(self, mask_word, mask)
 
     def remove_word(self, word):
         if word in self.dictionary:
@@ -51,41 +53,59 @@ class MaskedDictionary(WordleDictionary):
     def __init__(self, parent_dictionary, mask_word, mask):
         super().__init__()
         for word in parent_dictionary.dictionary:
-            m = self.match(word, mask_word, mask)
+            m = match(word, mask_word, mask)
             logger.debug(f'{mask_word} {word} {mask}-> {m}')
             if m:
                 self.dictionary[word] = 1
 
-    def match(self, word, mask_word, mask):
-        for i in range(len(mask_word)):
-            if mask[i] == '🟩':
-                if mask_word[i] != word[i]:
-                    return False
-                mask_word = mask_word[0:i] + ' ' + mask_word[i+1:]
-                word = word[0:i] + ' ' + word[i+1:]
-                mask = mask[0:i] + ' ' + mask[i+1:]
 
-        for i in range(len(mask_word)):
-            if mask_word[i] == ' ':
-                continue
-            if mask[i] == '🟨':
-                found = False
-                for j in range(len(word)):
-                    if mask_word[i] == word[j]:
-                        mask_word = mask_word[0:i] + ' ' + mask_word[i + 1:]
-                        word = word[0:j] + ' ' + word[j + 1:]
-                        mask = mask[0:i] + ' ' + mask[i + 1:]
-                        found = True
-                        break
-                if not found:
-                    return False
+class EntropyDictionary(ExternalDictionary):
 
-        for i in range(len(mask_word)):
-            if mask_word[i] == ' ':
-                continue
-            if mask[i] == '⬛':
-                if word.__contains__(mask_word[i]):
-                    return False
-        return True
+    def __init__(self, data_dir=ExternalDictionary.DEFAULT_DATA_DIR, source=ExternalDictionary.DEFAULT_SOURCE):
+        super().__init__(data_dir, source)
+        self.candidates = list(self.dictionary.keys())
+        self.calculate_entropy()
+        self.initial_entropy = self.dictionary.copy()
 
+    def reset(self):
+        self.candidates = list(self.dictionary.keys())
+        self.dictionary = self.initial_entropy.copy()
 
+    def reduce(self, mask_word, mask):
+        for word in self.candidates:
+            m = match(word, mask_word, mask)
+            logger.debug(f'{mask_word} {word} {mask}-> {m}')
+            if not m:
+                self.candidates.remove(word)
+
+    def remove_word(self, word):
+        if word in self.candidates:
+            self.candidates.remove(word)
+
+    def calculate_entropy(self):
+        logger.info(f'Calculating entropies for {len(self.candidates)} words')
+        for word in self.dictionary:
+            p = {}
+            for candidate in self.candidates:
+                m = mark(candidate, word)
+                try:
+                    p[m] += 1
+                except KeyError:
+                    p[m] = 1
+            entropy = 0
+            for m in p:
+                p_m = p[m] / len(self.candidates)
+                entropy += p_m * math.log2(p_m)
+            entropy = -entropy
+            self.dictionary[word] = entropy
+        logger.info(f'Calculating entropy complete')
+
+    def get_one(self):
+        max_entropy = 0
+        word = None
+        for w in self.dictionary:
+            if self.dictionary[w] > max_entropy:
+                max_entropy = self.dictionary[w]
+                word = w
+        logger.info(f'{word}: {max_entropy}')
+        return word

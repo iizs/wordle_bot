@@ -16,4 +16,4 @@ logging.basicConfig(
 player = EntropyBotPlayer()
 
 game = WordleGame(player)
-game.start(num_games=10000)
+game.start(num_games=1)
