@@ -29,7 +29,7 @@ class WordleGameStatus:
         self.tries.append((guess, mark_result))
         self.last_guess = guess
         self.last_guess_was_valid = True
-        if mark == '🟩🟩🟩🟩🟩':
+        if mark_result == '🟩🟩🟩🟩🟩':
             self.win = True
 
     def num_tries(self):
