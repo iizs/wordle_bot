@@ -3,6 +3,7 @@ import json
 import random
 import math
 import logging
+import heapq
 from .util import match, mark
 
 logger = logging.getLogger(__name__)
@@ -64,19 +65,22 @@ class EntropyDictionary(ExternalDictionary):
     def __init__(self, data_dir=ExternalDictionary.DEFAULT_DATA_DIR, source=ExternalDictionary.DEFAULT_SOURCE):
         super().__init__(data_dir, source)
         self.candidates = list(self.dictionary.keys())
+        self.entropy_words_heap = []
         self.calculate_entropy()
-        self.initial_entropy = self.dictionary.copy()
+        self.initial_entropy_words_heap = self.entropy_words_heap.copy()
 
     def reset(self):
         self.candidates = list(self.dictionary.keys())
-        self.dictionary = self.initial_entropy.copy()
+        self.initial_entropy_words_heap = self.entropy_words_heap.copy()
 
     def reduce(self, mask_word, mask):
+        new_candidates = []
         for word in self.candidates:
             m = match(word, mask_word, mask)
             logger.debug(f'{mask_word} {word} {mask}-> {m}')
-            if not m:
-                self.candidates.remove(word)
+            if m:
+                new_candidates.append(word)
+        self.candidates = new_candidates
 
     def remove_word(self, word):
         if word in self.candidates:
@@ -84,7 +88,8 @@ class EntropyDictionary(ExternalDictionary):
 
     def calculate_entropy(self):
         logger.info(f'Calculating entropies for {len(self.candidates)} words')
-        for word in self.dictionary:
+        self.entropy_words_heap = []
+        for word in self.candidates:
             p = {}
             for candidate in self.candidates:
                 m = mark(candidate, word)
@@ -97,15 +102,11 @@ class EntropyDictionary(ExternalDictionary):
                 p_m = p[m] / len(self.candidates)
                 entropy += p_m * math.log2(p_m)
             entropy = -entropy
-            self.dictionary[word] = entropy
+            self.entropy_words_heap.append((entropy, word))
+        heapq.heapify(self.entropy_words_heap)
         logger.info(f'Calculating entropy complete')
 
     def get_one(self):
-        max_entropy = 0
-        word = None
-        for w in self.dictionary:
-            if self.dictionary[w] > max_entropy:
-                max_entropy = self.dictionary[w]
-                word = w
-        logger.info(f'{word}: {max_entropy}')
-        return word
+        one = heapq.nlargest(1, self.entropy_words_heap)[0]
+        logger.info(f'{one[1]}: {one[0]}')
+        return one[1]
