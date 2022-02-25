@@ -14,6 +14,9 @@ def match(word, mask_word, mask):
         if mask[i] == '🟨':
             found = False
             for j in range(len(word)):
+                if i == j:
+                    # This should be '🟩' not '🟨'
+                    continue
                 if mask_word[i] == word[j]:
                     mask_word = mask_word[0:i] + ' ' + mask_word[i + 1:]
                     word = word[0:j] + ' ' + word[j + 1:]
