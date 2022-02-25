@@ -71,7 +71,7 @@ class EntropyDictionary(ExternalDictionary):
 
     def reset(self):
         self.candidates = list(self.dictionary.keys())
-        self.initial_entropy_words_heap = self.entropy_words_heap.copy()
+        self.entropy_words_heap = self.initial_entropy_words_heap.copy()
 
     def reduce(self, mask_word, mask):
         new_candidates = []
@@ -107,6 +107,7 @@ class EntropyDictionary(ExternalDictionary):
         logger.info(f'Calculating entropy complete')
 
     def get_one(self):
-        one = heapq.nlargest(1, self.entropy_words_heap)[0]
-        logger.info(f'{one[1]}: {one[0]}')
-        return one[1]
+        top_n = heapq.nlargest(10, self.entropy_words_heap)
+        for pair in top_n:
+            logger.info(f'{pair[1]}: {pair[0]}')
+        return top_n[0][1]
