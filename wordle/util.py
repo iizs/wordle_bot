@@ -49,4 +49,5 @@ def mark(answer, guess):
             if answer[j] == guess[i]:
                 m = m[0:i] + '🟨' + m[i + 1:]
                 answer = answer[0:j] + ' ' + answer[j + 1:]
+                break
     return m
