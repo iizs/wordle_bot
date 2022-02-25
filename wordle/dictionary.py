@@ -66,14 +66,32 @@ class EntropyDictionary(ExternalDictionary):
         super().__init__(data_dir, source)
         self.candidates = list(self.dictionary.keys())
         self.entropy_words_heap = []
+        logger.info(f'Begin initial entropy calculation')
         self.calculate_entropy()
+        logger.info(f'End initial entropy calculation')
+
+        # Variables for faster entropy calculation
         self.initial_entropy_words_heap = self.entropy_words_heap.copy()
+        self.top_entropy_word = heapq.nlargest(1, self.entropy_words_heap)[0][1]
+        self.second_try_candidates = {}
+        self.second_try_entropy_words_heap = {}
 
     def reset(self):
         self.candidates = list(self.dictionary.keys())
         self.entropy_words_heap = self.initial_entropy_words_heap.copy()
 
     def reduce(self, mask_word, mask):
+        update_second_try = False
+        if mask_word == self.top_entropy_word:
+            if mask in self.second_try_candidates:
+                self.candidates = self.second_try_candidates[mask]
+                self.entropy_words_heap = self.second_try_entropy_words_heap[mask]
+                logger.info(f"{len(self.candidates)} candidates left")
+                logger.info(f'Calculating entropies for {len(self.candidates)} words (cached)')
+                return
+            else:
+                update_second_try = True
+
         new_candidates = []
         for word in self.candidates:
             m = match(word, mask_word, mask)
@@ -81,10 +99,19 @@ class EntropyDictionary(ExternalDictionary):
             if m:
                 new_candidates.append(word)
         self.candidates = new_candidates
+        logger.info(f"{len(self.candidates)} candidates left")
+        self.calculate_entropy()
+
+        if update_second_try:
+            logger.info(f'Updating entropies for {mask_word} / {mask}')
+            self.second_try_candidates[mask] = self.candidates
+            self.second_try_entropy_words_heap[mask] = self.entropy_words_heap.copy()
 
     def remove_word(self, word):
         if word in self.candidates:
             self.candidates.remove(word)
+        logger.info(f"{len(self.candidates)} candidates left")
+        self.calculate_entropy()
 
     def calculate_entropy(self):
         logger.info(f'Calculating entropies for {len(self.candidates)} words')

@@ -17,9 +17,6 @@ class EntropyBotPlayer(BotPlayer):
             else:
                 self.dictionary.remove_word(self.previous_guess)
 
-        logger.info(f"{len(self.dictionary.candidates)} candidates left")
-        if len(status.tries) > 0:
-            self.dictionary.calculate_entropy()
         try:
             self.previous_guess = self.dictionary.get_one()
         except IndexError:
