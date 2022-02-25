@@ -36,6 +36,10 @@ class WordleGameStatus:
         return len(self.tries)
 
 
+class ResignException(Exception):
+    pass
+
+
 class WordleGame:
     def __init__(self, player):
         self.__name__ = "WorldeGame"
@@ -54,17 +58,22 @@ class WordleGame:
             self.player.restart()
             answer = self.answer_dictionary.random()
             status = WordleGameStatus()
-            for i in range(6):
-                valid_guess = False
-                while not valid_guess:
-                    guess = self.player.make_guess(status)
-                    if self.valid_dictionary.exists(guess):
-                        valid_guess = True
-                    status.set_as_invalid_guess(guess)
-                m = mark(answer, guess)
-                status.add(guess, m)
-                if status.win:
-                    break
+            try:
+                for i in range(6):
+                    valid_guess = False
+                    while not valid_guess:
+                        guess = self.player.make_guess(status)
+                        if guess == '/resign':
+                            raise ResignException()
+                        if self.valid_dictionary.exists(guess):
+                            valid_guess = True
+                        status.set_as_invalid_guess(guess)
+                    m = mark(answer, guess)
+                    status.add(guess, m)
+                    if status.win:
+                        break
+            except ResignException:
+                pass
 
             if status.win:
                 self.player.win(status)
