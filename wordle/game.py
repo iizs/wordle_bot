@@ -41,10 +41,14 @@ class ResignException(Exception):
 
 
 class WordleGame:
-    def __init__(self, player):
+    def __init__(self, player, mode='normal'):
         self.__name__ = "WorldeGame"
         self.player = player
-        self.answer_dictionary = ExternalDictionary(source='wordle.answer')
+        self.mode = mode
+        if self.mode == 'simulation':
+            self.answer_dictionary = ExternalDictionary(source='wordle.answer')
+        else:
+            self.answer_dictionary = ExternalDictionary(source='wordle.answer')
         self.valid_dictionary = ExternalDictionary(source='wordle.valid')
 
     def start(self, num_games=1):
@@ -54,6 +58,9 @@ class WordleGame:
         # if player guesses incorrectly, game continues and give the player hints
         # repeat 6 times
         # if player guesses incorrectly 6 times, game ends
+        if num_games is None:
+            num_games = self.answer_dictionary.len()
+
         for n in range(num_games):
             self.player.restart()
             answer = self.answer_dictionary.random()

@@ -28,6 +28,9 @@ class WordleDictionary:
         if word in self.dictionary:
             del self.dictionary[word]
 
+    def len(self):
+        return len(self.dictionary)
+
 
 class ExternalDictionary(WordleDictionary):
     DEFAULT_DATA_DIR = os.path.join(os.getcwd(), 'data', 'dictionary', 'wordle')
@@ -58,6 +61,18 @@ class MaskedDictionary(WordleDictionary):
             logger.debug(f'{mask_word} {word} {mask}-> {m}')
             if m:
                 self.dictionary[word] = 1
+
+
+class SimulationDictionary(ExternalDictionary):
+    def __init__(self, data_dir=ExternalDictionary.DEFAULT_DATA_DIR, source=ExternalDictionary.DEFAULT_SOURCE):
+        super().__init__(data_dir=data_dir, source=source)
+        self.answers = list(self.dictionary.keys())
+        random.shuffle(self.answers)
+        self.last_answer_idx = -1
+
+    def random(self):
+        self.last_answer_idx = (self.last_answer_idx + 1) % len(self.answers)
+        return self.answers[self.last_answer_idx]
 
 
 class EntropyDictionary(ExternalDictionary):
