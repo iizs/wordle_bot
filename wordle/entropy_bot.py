@@ -20,7 +20,7 @@ class EntropyBotPlayer(BotPlayer):
         try:
             self.previous_guess = self.dictionary.get_one()
         except IndexError:
-            pass
+            return "/resign"
         logger.info(f"Trying: {self.previous_guess}")
         return self.previous_guess
 
