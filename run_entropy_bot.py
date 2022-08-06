@@ -9,7 +9,10 @@ logging.basicConfig(
     level=logging.INFO,
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(f'logs/run_entropy_bot_{datetime.datetime.now().strftime("%Y%m%d%H%M")}.log')
+        logging.FileHandler(
+            f'logs/run_entropy_bot_{datetime.datetime.now().strftime("%Y%m%d%H%M")}.log',
+            encoding='UTF-8',
+        )
     ]
 )
 
