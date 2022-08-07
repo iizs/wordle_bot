@@ -1,6 +1,7 @@
 import time
 import json
 import logging
+import tkinter
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.common.exceptions import NoSuchElementException
@@ -76,6 +77,8 @@ class WordleWebDriver:
 
     def __init__(self, player):
         self.player = player
+        self.tkroot = tkinter.Tk()
+        self.tkroot.withdraw()  # to hide the window
         self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
         self.driver.get(WordleWebDriver.SITE_URL)
@@ -167,3 +170,4 @@ class WordleWebDriver:
                 time.sleep(1)
         logger.info(share_button.is_displayed())
         share_button.click()
+        return self.tkroot.clipboard_get()

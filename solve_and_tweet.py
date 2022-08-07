@@ -28,6 +28,6 @@ if is_solved:
 else:
     logger.info("Failed")
 
-wordle_web_driver.get_share_texts()
+share_texts = wordle_web_driver.get_share_texts()
 
 input("type anything to continue")
