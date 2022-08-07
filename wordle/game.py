@@ -1,6 +1,7 @@
 import logging
 from .dictionary import ExternalDictionary
 from .util import mark
+from .exception import ResignException
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +35,6 @@ class WordleGameStatus:
 
     def num_tries(self):
         return len(self.tries)
-
-
-class ResignException(Exception):
-    pass
 
 
 class WordleGame:
