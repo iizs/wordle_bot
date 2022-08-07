@@ -1,11 +1,15 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
 import time
 import json
+import logging
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.common.exceptions import NoSuchElementException
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 from .game import WordleGameStatus
 from .exception import ResignException, WordleHelperException
+
+logger = logging.getLogger(__name__)
 
 
 class LocalStorage:
@@ -68,6 +72,7 @@ class WordleWebDriver:
     HOW_TO_PLAY_MODAL_CLOSE_BUTTON_CLASS_NAME = "Modal-module_closeIcon__b4z74"
     KEYBOARD_BUTTONS_CLASS_NAME = "Key-module_key__Rv-Vp"
     TOAST_CONTAINER_ID = "ToastContainer-module_gameToaster__yjzPn"
+    SHARE_BUTTON_ID = "share-button"
 
     def __init__(self, player):
         self.player = player
@@ -141,7 +146,7 @@ class WordleWebDriver:
                 if status.win:
                     break
         except ResignException:
-            pass
+            return False
 
         if status.win:
             self.player.win(status)
@@ -149,3 +154,16 @@ class WordleWebDriver:
             self.player.lose(status, self.state["solution"])
 
         self.player.game_over()
+
+        return status.win
+
+    def get_share_texts(self):
+        while True:
+            try:
+                share_button = self.driver.find_element(By.ID, WordleWebDriver.SHARE_BUTTON_ID)
+                break
+            except NoSuchElementException as e:
+                logger.info('Share Button is not ready yet. Waiting 1 second.')
+                time.sleep(1)
+        logger.info(share_button.is_displayed())
+        share_button.click()
