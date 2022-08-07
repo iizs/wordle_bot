@@ -1,4 +1,4 @@
-from .player import Player, BotPlayer
+from .player import BotPlayer
 from .dictionary import EntropyDictionary
 import os
 import logging
@@ -36,6 +36,7 @@ class EntropyBotPlayer(BotPlayer):
         self.__name__ = "EntropyBotPlayer"
         self.dictionary = EntropyDictionary(
             data_dir=os.path.join(os.getcwd(), 'data', 'dictionary', 'scrabble.merriam'),
-            source="scrabble.merriam"
+            source="scrabble.merriam",
+            load_entropy_from_file=True
         )
         self.previous_guess = None

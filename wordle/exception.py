@@ -1,0 +1,2 @@
+class WordleHelperException(Exception):
+    pass

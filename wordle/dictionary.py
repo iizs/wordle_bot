@@ -5,6 +5,7 @@ import math
 import logging
 import heapq
 from .util import match, mark
+from .exception import WordleHelperException
 
 logger = logging.getLogger(__name__)
 
@@ -76,14 +77,26 @@ class SimulationDictionary(ExternalDictionary):
 
 
 class EntropyDictionary(ExternalDictionary):
+    DEFAULT_ENTROPY_DATA_DIR = os.path.join(os.getcwd(), 'data', 'entropy')
+    ENTROPY_DATA_FILE_PATTERN = '{}.initial_entropy.json'
 
-    def __init__(self, data_dir=ExternalDictionary.DEFAULT_DATA_DIR, source=ExternalDictionary.DEFAULT_SOURCE):
+    def __init__(
+            self,
+            data_dir=ExternalDictionary.DEFAULT_DATA_DIR,
+            source=ExternalDictionary.DEFAULT_SOURCE,
+            entropy_data_dir=DEFAULT_ENTROPY_DATA_DIR,
+            load_entropy_from_file=False,
+    ):
         super().__init__(data_dir, source)
+        self.entropy_data_dir = entropy_data_dir
         self.candidates = list(self.dictionary.keys())
         self.entropy_words_heap = []
-        logger.info(f'Begin initial entropy calculation')
-        self.calculate_entropy()
-        logger.info(f'End initial entropy calculation')
+        if load_entropy_from_file:
+            self.load_initial_entropy()
+        else:
+            logger.info(f'Begin initial entropy calculation')
+            self.calculate_entropy()
+            logger.info(f'End initial entropy calculation')
 
         # Variables for faster entropy calculation
         self.initial_entropy_words_heap = self.entropy_words_heap.copy()
@@ -153,3 +166,39 @@ class EntropyDictionary(ExternalDictionary):
         for pair in top_n:
             logger.info(f'{pair[1]}: {pair[0]}')
         return top_n[0][1]
+
+    def save_initial_entropy(self):
+        entropy_dict = {}
+        for entropy, word in self.initial_entropy_words_heap:
+            entropy_dict[word] = entropy
+        file_path = os.path.join(
+            self.entropy_data_dir,
+            EntropyDictionary.ENTROPY_DATA_FILE_PATTERN.format(self.source)
+        )
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(entropy_dict, f)
+        except Exception as e:
+            logger.error(e)
+
+    def load_initial_entropy(self):
+        logger.info(f'Loading entropies for {self.source} dictionary')
+
+        file_path = os.path.join(
+            self.entropy_data_dir,
+            EntropyDictionary.ENTROPY_DATA_FILE_PATTERN.format(self.source)
+        )
+        try:
+            with open(file_path) as f:
+                entropy_dict = json.load(f)
+        except FileNotFoundError as e:
+            logger.error(e)
+
+        if len(self.candidates) != len(entropy_dict):
+            raise WordleHelperException(f"Dictionary size and entropy file size does not match: {self.source}")
+
+        self.entropy_words_heap = []
+        for word, entropy in entropy_dict.items():
+            self.entropy_words_heap.append((entropy, word))
+        heapq.heapify(self.entropy_words_heap)
+        logger.info(f'Loading entropy complete')
