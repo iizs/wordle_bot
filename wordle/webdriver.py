@@ -170,4 +170,5 @@ class WordleWebDriver:
                 time.sleep(1)
         logger.info(share_button.is_displayed())
         share_button.click()
+        time.sleep(1)
         return self.tkroot.clipboard_get()
