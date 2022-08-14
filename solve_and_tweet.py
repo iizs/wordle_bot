@@ -3,6 +3,7 @@ import datetime
 from wordle.webdriver import WordleWebDriver
 from wordle.entropy_bot import EntropyBotPlayer
 from wordle.player import HumanPlayer
+from wordle.twitter import TwitterHelper
 
 FORMAT = '[%(asctime)s] %(levelname)s {%(filename)s:%(lineno)d} - %(message)s'
 logging.basicConfig(
@@ -29,5 +30,9 @@ else:
     logger.info("Failed")
 
 share_texts = wordle_web_driver.get_share_texts()
+share_texts += '\n\nby ' + player.name
 
-input("type anything to continue")
+logger.info(share_texts)
+
+twitter_helper = TwitterHelper()
+twitter_helper.create_tweet(share_texts)

@@ -32,7 +32,7 @@ class EntropyBotPlayer(BotPlayer):
 
     def __init__(self):
         super().__init__()
-        self.name = "EntropyBotPlayer"
+        self.name = "EntropyBot 1.0"
         self.__name__ = "EntropyBotPlayer"
         self.dictionary = EntropyDictionary(
             data_dir=os.path.join(os.getcwd(), 'data', 'dictionary', 'scrabble.merriam'),
